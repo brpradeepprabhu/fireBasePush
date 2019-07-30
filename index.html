@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="sampleApp">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+    <!-- AngularFire -->
+    <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-messaging.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#config-web-app -->
+
+    <script>
+        // Your web app's Firebase configuration
+        var messaging;
+        var firebaseConfig = {
+            apiKey: "AIzaSyDe0VELzb4g00HOS1ODGRzq7yIR7738KlA",
+            authDomain: "pushdemo-22866.firebaseapp.com",
+            databaseURL: "https://pushdemo-22866.firebaseio.com",
+            projectId: "pushdemo-22866",
+            storageBucket: "",
+            messagingSenderId: "491903959993",
+            appId: "1:491903959993:web:7382886546766f09"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+</head>
+
+<body ng-controller="SampleCtrl">
+    {{data.text}}
+
+    <script>
+        messaging = firebase.messaging();
+        var app = angular.module("sampleApp", ["firebase"]);
+        app.controller("SampleCtrl", function ($scope, $firebaseArray) {
+            $scope.data = {
+                text: "I am testing here"
+            }
+            navigator.serviceWorker.register('/firebase-messaging-sw.js').then(registration => {
+                firebase.messaging().useServiceWorker(registration)
+            })
+            Notification.requestPermission().then((permission) => {
+                if (permission === 'granted') {
+                    console.log('Notification permission granted.');
+                    messaging.getToken().then((currentToken) => {
+                        if (currentToken) {
+                            console.log(currentToken)
+                        } else {
+                            // Show permission request.
+                            console.log(
+                                'No Instance ID token available. Request permission to generate one.'
+                            );
+                        }
+                    }).catch((err) => {
+                        console.log('An error occurred while retrieving token. ', err);
+
+                    });
+                } else {
+                    console.log('Unable to get permission to notify.');
+                }
+            });
+
+        });
+    </script>
+</body>
+
+</html>
